@@ -4,9 +4,17 @@ import (
     "github.com/aws/aws-lambda-go/lambda"
 )
 
-func shorten() (string, error) {
-    shortString := "tiny"
-    return shortString, nil
+type url struct {
+    tinyID string `json:"tinyID"`
+    URL string `json:"URL"`
+}
+
+func shorten() (*url, error) {
+    link, err := getItem("dq")
+    if err != nil {
+        return nil, err
+    }
+    return link, nil
 }
 
 func main() {
