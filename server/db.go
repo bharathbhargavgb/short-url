@@ -11,13 +11,13 @@ import (
 // use.
 var db = dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1"))
 
-func getItem(tinyID string) (*url, error) {
+func getItem(TinyID string) (*url, error) {
     // Prepare the input for the query.
     input := &dynamodb.GetItemInput{
         TableName: aws.String("URL_Store"),
         Key: map[string]*dynamodb.AttributeValue{
-            "tinyID": {
-                S: aws.String(tinyID),
+            "TinyID": {
+                S: aws.String(TinyID),
             },
         },
     }
@@ -44,4 +44,21 @@ func getItem(tinyID string) (*url, error) {
     }
 
     return link, nil
+}
+
+func putItem(link *url) error {
+    input := &dynamodb.PutItemInput{
+        TableName: aws.String("URL_Store"),
+        Item: map[string]*dynamodb.AttributeValue{
+            "TinyID": {
+                S: aws.String(link.TinyID),
+            },
+            "URL": {
+                S: aws.String(link.URL),
+            },
+        },
+    }
+
+    _, err := db.PutItem(input)
+    return err
 }

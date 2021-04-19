@@ -5,6 +5,7 @@ import (
     "log"
     "net/http"
     "os"
+    "fmt"
     "regexp"
 
     "github.com/aws/aws-lambda-go/events"
@@ -15,20 +16,31 @@ var tinyIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
 type url struct {
-    tinyID string `json:"tinyID"`
+    TinyID string `json:"TinyID"`
     URL string `json:"URL"`
 }
 
-func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-    // Get the `tinyID` query string parameter from the request and
+func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+    switch req.HTTPMethod {
+        case "GET":
+            return expand(req)
+        case "POST":
+            return shorten(req)
+        default:
+            return clientError(http.StatusMethodNotAllowed)
+    }
+}
+
+func expand(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+    // Get the `TinyID` query string parameter from the request and
     // validate it.
-    tinyID := req.QueryStringParameters["tinyID"]
-    if !tinyIDRegexp.MatchString(tinyID) {
+    TinyID := req.QueryStringParameters["TinyID"]
+    if !tinyIDRegexp.MatchString(TinyID) {
         return clientError(http.StatusBadRequest)
     }
 
-    // Fetch the url record from the database based on the tinyID value.
-    link, err := getItem(tinyID)
+    // Fetch the url record from the database based on the TinyID value.
+    link, err := getItem(TinyID)
     if err != nil {
         return serverError(err)
     }
@@ -48,6 +60,39 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
     return events.APIGatewayProxyResponse{
         StatusCode: http.StatusOK,
         Body:       string(js),
+    }, nil
+}
+
+func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+    if req.Headers["content-type"] != "application/json" && req.Headers["Content-Type"] != "application/json" {
+        return clientError(http.StatusNotAcceptable)
+    }
+
+    link := new(url)
+    err := json.Unmarshal([]byte(req.Body), link)
+    if err != nil {
+        errorLogger.Println("Unmarshal went wrong", err)
+        return clientError(http.StatusUnprocessableEntity)
+    }
+    errorLogger.Println("Unmarshalled struct ", link)
+
+    if !tinyIDRegexp.MatchString(link.TinyID) {
+        errorLogger.Println("Regex does not match: ", link.TinyID)
+        return clientError(http.StatusBadRequest)
+    }
+    if link.TinyID == "" || link.URL == "" {
+        errorLogger.Println("TinyID or URL is empty ", link.TinyID, link.URL)
+        return clientError(http.StatusBadRequest)
+    }
+
+    err = putItem(link)
+    if err != nil {
+        return serverError(err)
+    }
+
+    return events.APIGatewayProxyResponse{
+        StatusCode: 201,
+        Headers:    map[string]string{"Location": fmt.Sprintf("/shorten?TinyID=%s", link.TinyID)},
     }, nil
 }
 
@@ -72,5 +117,5 @@ func clientError(status int) (events.APIGatewayProxyResponse, error) {
 }
 
 func main() {
-    lambda.Start(shorten)
+    lambda.Start(router)
 }
