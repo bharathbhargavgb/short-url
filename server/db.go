@@ -7,23 +7,19 @@ import (
     "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-// Declare a new DynamoDB instance. Note that this is safe for concurrent
-// use.
 var db = dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1"))
+const URITable = "URIStore"
 
-func getItem(TinyID string) (*url, error) {
-    // Prepare the input for the query.
-    input := &dynamodb.GetItemInput{
-        TableName: aws.String("URL_Store"),
-        Key: map[string]*dynamodb.AttributeValue{
+func getItem(tinyIDInput string) (*shortURI, error) {
+    input := &dynamodb.GetItemInput {
+        TableName: aws.String(URITable),
+        Key: map[string]*dynamodb.AttributeValue {
             "TinyID": {
-                S: aws.String(TinyID),
+                S: aws.String(tinyIDInput),
             },
         },
     }
 
-    // Retrieve the item from DynamoDB. If no matching item is found
-    // return nil.
     result, err := db.GetItem(input)
     if err != nil {
         return nil, err
@@ -34,27 +30,25 @@ func getItem(TinyID string) (*url, error) {
 
     // The result.Item object returned has the underlying type
     // map[string]*AttributeValue. We can use the UnmarshalMap helper
-    // to parse this straight into the fields of a struct. Note:
-    // UnmarshalListOfMaps also exists if you are working with multiple
-    // items.
-    link := new(url)
-    err = dynamodbattribute.UnmarshalMap(result.Item, link)
+    // to parse this straight into the fields of a struct.
+    shortItem := new(shortURI)
+    err = dynamodbattribute.UnmarshalMap(result.Item, shortItem)
     if err != nil {
         return nil, err
     }
 
-    return link, nil
+    return shortItem, nil
 }
 
-func putItem(link *url) error {
+func putItem(shortItem *shortURI) error {
     input := &dynamodb.PutItemInput{
-        TableName: aws.String("URL_Store"),
+        TableName: aws.String(URITable),
         Item: map[string]*dynamodb.AttributeValue{
             "TinyID": {
-                S: aws.String(link.TinyID),
+                S: aws.String(shortItem.TinyID),
             },
-            "URL": {
-                S: aws.String(link.URL),
+            "URI": {
+                S: aws.String(shortItem.URI),
             },
         },
     }

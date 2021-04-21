@@ -15,9 +15,9 @@ import (
 var tinyIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
-type url struct {
-    TinyID string `json:"TinyID"`
-    URL string `json:"URL"`
+type shortURI struct {
+    TinyID string
+    URI string
 }
 
 func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -32,34 +32,27 @@ func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 }
 
 func expand(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-    // Get the `TinyID` query string parameter from the request and
-    // validate it.
-    TinyID := req.QueryStringParameters["TinyID"]
-    if !tinyIDRegexp.MatchString(TinyID) {
+    tinyIDInput := req.QueryStringParameters["TinyID"]
+    if !tinyIDRegexp.MatchString(tinyIDInput) {
         return clientError(http.StatusBadRequest)
     }
 
-    // Fetch the url record from the database based on the TinyID value.
-    link, err := getItem(TinyID)
+    shortItem, err := getItem(tinyIDInput)
     if err != nil {
         return serverError(err)
     }
-    if link == nil {
+    if shortItem == nil {
         return clientError(http.StatusNotFound)
     }
 
-    // The APIGatewayProxyResponse.Body field needs to be a string, so
-    // we marshal the url record into JSON.
-    js, err := json.Marshal(link)
+    httpResponseBody, err := json.Marshal(shortItem)
     if err != nil {
         return serverError(err)
     }
 
-    // Return a response with a 200 OK status and the JSON book record
-    // as the body.
     return events.APIGatewayProxyResponse{
         StatusCode: http.StatusOK,
-        Body:       string(js),
+        Body:       string(httpResponseBody),
     }, nil
 }
 
@@ -68,37 +61,30 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
         return clientError(http.StatusNotAcceptable)
     }
 
-    link := new(url)
-    err := json.Unmarshal([]byte(req.Body), link)
+    shortItem := new(shortURI)
+    err := json.Unmarshal([]byte(req.Body), shortItem)
     if err != nil {
-        errorLogger.Println("Unmarshal went wrong", err)
         return clientError(http.StatusUnprocessableEntity)
     }
-    errorLogger.Println("Unmarshalled struct ", link)
 
-    if !tinyIDRegexp.MatchString(link.TinyID) {
-        errorLogger.Println("Regex does not match: ", link.TinyID)
+    if !tinyIDRegexp.MatchString(shortItem.TinyID) {
         return clientError(http.StatusBadRequest)
     }
-    if link.TinyID == "" || link.URL == "" {
-        errorLogger.Println("TinyID or URL is empty ", link.TinyID, link.URL)
+    if shortItem.TinyID == "" || shortItem.URI == "" {
         return clientError(http.StatusBadRequest)
     }
 
-    err = putItem(link)
+    err = putItem(shortItem)
     if err != nil {
         return serverError(err)
     }
 
     return events.APIGatewayProxyResponse{
         StatusCode: 201,
-        Headers:    map[string]string{"Location": fmt.Sprintf("/shorten?TinyID=%s", link.TinyID)},
+        Headers:    map[string]string{"Location": fmt.Sprintf("/shorten?TinyID=%s", shortItem.TinyID)},
     }, nil
 }
 
-// Add a helper for handling errors. This logs any error to os.Stderr
-// and returns a 500 Internal Server Error response that the AWS API
-// Gateway understands.
 func serverError(err error) (events.APIGatewayProxyResponse, error) {
     errorLogger.Println(err.Error())
 
@@ -108,7 +94,6 @@ func serverError(err error) (events.APIGatewayProxyResponse, error) {
     }, nil
 }
 
-// Similarly add a helper for send responses relating to client errors.
 func clientError(status int) (events.APIGatewayProxyResponse, error) {
     return events.APIGatewayProxyResponse{
         StatusCode: status,
