@@ -12,6 +12,7 @@ import (
     "github.com/aws/aws-lambda-go/lambda"
 )
 
+var DDBTable = "URIStore"
 var tinyIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
@@ -37,7 +38,8 @@ func expand(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
         return clientError(http.StatusBadRequest)
     }
 
-    shortItem, err := getItem(tinyIDInput)
+   dataStore := getStorage(DDBTable)
+    shortItem, err := dataStore.getItem(tinyIDInput)
     if err != nil {
         return serverError(err)
     }
@@ -74,7 +76,8 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
         return clientError(http.StatusBadRequest)
     }
 
-    err = putItem(shortItem)
+   dataStore := getStorage(DDBTable)
+    err = dataStore.putItem(shortItem)
     if err != nil {
         return serverError(err)
     }

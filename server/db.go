@@ -5,14 +5,25 @@ import (
     "github.com/aws/aws-sdk-go/aws/session"
     "github.com/aws/aws-sdk-go/service/dynamodb"
     "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+    "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 )
 
-var db = dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1"))
-const URITable = "URIStore"
+type DBStore struct {
+    TableName string
+    Client dynamodbiface.DynamoDBAPI
+}
 
-func getItem(tinyIDInput string) (*shortURI, error) {
+func getStorage(tableName string) *DBStore {
+    return &DBStore {
+        TableName: tableName,
+        Client: dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1")),
+    }
+}
+
+
+func (db *DBStore) getItem(tinyIDInput string) (*shortURI, error) {
     input := &dynamodb.GetItemInput {
-        TableName: aws.String(URITable),
+        TableName: aws.String(db.TableName),
         Key: map[string]*dynamodb.AttributeValue {
             "TinyID": {
                 S: aws.String(tinyIDInput),
@@ -20,7 +31,7 @@ func getItem(tinyIDInput string) (*shortURI, error) {
         },
     }
 
-    result, err := db.GetItem(input)
+    result, err := db.Client.GetItem(input)
     if err != nil {
         return nil, err
     }
@@ -40,9 +51,9 @@ func getItem(tinyIDInput string) (*shortURI, error) {
     return shortItem, nil
 }
 
-func putItem(shortItem *shortURI) error {
+func (db *DBStore) putItem(shortItem *shortURI) error {
     input := &dynamodb.PutItemInput{
-        TableName: aws.String(URITable),
+        TableName: aws.String(db.TableName),
         Item: map[string]*dynamodb.AttributeValue{
             "TinyID": {
                 S: aws.String(shortItem.TinyID),
@@ -53,6 +64,6 @@ func putItem(shortItem *shortURI) error {
         },
     }
 
-    _, err := db.PutItem(input)
+    _, err := db.Client.PutItem(input)
     return err
 }
