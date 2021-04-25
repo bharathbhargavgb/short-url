@@ -7,6 +7,7 @@ import (
     "os"
     "fmt"
     "regexp"
+    "errors"
 
     "github.com/aws/aws-lambda-go/events"
     "github.com/aws/aws-lambda-go/lambda"
@@ -38,7 +39,7 @@ func expand(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
         return clientError(http.StatusBadRequest)
     }
 
-   dataStore := getStorage(DDBTable)
+    dataStore := getStorage(DDBTable)
     shortItem, err := dataStore.getItem(tinyIDInput)
     if err != nil {
         return serverError(err)
@@ -69,14 +70,22 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
         return clientError(http.StatusUnprocessableEntity)
     }
 
-    if !tinyIDRegexp.MatchString(shortItem.TinyID) {
-        return clientError(http.StatusBadRequest)
-    }
-    if shortItem.TinyID == "" || shortItem.URI == "" {
+    if shortItem.URI == "" {
         return clientError(http.StatusBadRequest)
     }
 
-   dataStore := getStorage(DDBTable)
+    if shortItem.TinyID != "" && !tinyIDRegexp.MatchString(shortItem.TinyID) {
+        return clientError(http.StatusBadRequest)
+    }
+
+    dataStore := getStorage(DDBTable)
+    if shortItem.TinyID == "" {
+        shortItem.TinyID = getValidTinyID(dataStore, shortItem.URI)
+        if shortItem.TinyID == "" {
+            return serverError(errors.New("getValidTinyID() returned empty"))
+        }
+    }
+
     err = dataStore.putItem(shortItem)
     if err != nil {
         return serverError(err)

@@ -62,6 +62,7 @@ func (db *DBStore) putItem(shortItem *shortURI) error {
                 S: aws.String(shortItem.URI),
             },
         },
+        ConditionExpression: aws.String("attribute_not_exists(TinyID)"),
     }
 
     _, err := db.Client.PutItem(input)
