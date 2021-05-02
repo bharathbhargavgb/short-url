@@ -1,4 +1,4 @@
-module example.com/hello
+module github.com/bharathbhargavgb/short-URL
 
 go 1.16
 
