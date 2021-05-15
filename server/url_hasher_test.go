@@ -4,10 +4,10 @@ import(
     "testing"
 )
 
-func TestGetValidTinyID(t *testing.T) {
+func TestGetValidShortID(t *testing.T) {
     db := createFakeStorage()
-    tinyID := getValidTinyID(db, "https://www.google.com")
-    if len(tinyID) != 6 {
-        t.Errorf("Want len(tinyID) = 6, but got len(%v) = %v", tinyID, len(tinyID))
+    shortID := getValidShortID(db, "https://www.google.com")
+    if len(shortID) != 6 {
+        t.Errorf("Want len(shortID) = 6, but got len(%v) = %v", shortID, len(shortID))
     }
 }

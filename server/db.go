@@ -21,12 +21,12 @@ func getStorage(tableName string) *DBStore {
 }
 
 
-func (db *DBStore) getItem(tinyIDInput string) (*shortURI, error) {
+func (db *DBStore) getItem(shortIDInput string) (*shortURI, error) {
     input := &dynamodb.GetItemInput {
         TableName: aws.String(db.TableName),
         Key: map[string]*dynamodb.AttributeValue {
-            "TinyID": {
-                S: aws.String(tinyIDInput),
+            "ShortID": {
+                S: aws.String(shortIDInput),
             },
         },
     }
@@ -55,14 +55,14 @@ func (db *DBStore) putItem(shortItem *shortURI) error {
     input := &dynamodb.PutItemInput{
         TableName: aws.String(db.TableName),
         Item: map[string]*dynamodb.AttributeValue{
-            "TinyID": {
-                S: aws.String(shortItem.TinyID),
+            "ShortID": {
+                S: aws.String(shortItem.ShortID),
             },
             "URI": {
                 S: aws.String(shortItem.URI),
             },
         },
-        ConditionExpression: aws.String("attribute_not_exists(TinyID)"),
+        ConditionExpression: aws.String("attribute_not_exists(ShortID)"),
     }
 
     _, err := db.Client.PutItem(input)

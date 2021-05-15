@@ -31,7 +31,7 @@ func TestGetItemMissingKey(t *testing.T) {
 func TestPutItem(t *testing.T) {
     db := createFakeStorage()
     shortItem := &shortURI {
-        TinyID: "goog",
+        ShortID: "goog",
         URI: "https://www.google.com",
     }
     err := db.putItem(shortItem)

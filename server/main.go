@@ -14,11 +14,11 @@ import (
 )
 
 var DDBTable = "URIStore"
-var tinyIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
+var shortIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
 type shortURI struct {
-    TinyID string
+    ShortID string
     URI string
 }
 
@@ -34,13 +34,13 @@ func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 }
 
 func expand(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-    tinyIDInput := req.QueryStringParameters["TinyID"]
-    if !tinyIDRegexp.MatchString(tinyIDInput) {
+    shortIDInput := req.QueryStringParameters["shortID"]
+    if !shortIDRegexp.MatchString(shortIDInput) {
         return clientError(http.StatusBadRequest)
     }
 
     dataStore := getStorage(DDBTable)
-    shortItem, err := dataStore.getItem(tinyIDInput)
+    shortItem, err := dataStore.getItem(shortIDInput)
     if err != nil {
         return serverError(err)
     }
@@ -74,15 +74,15 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
         return clientError(http.StatusBadRequest)
     }
 
-    if shortItem.TinyID != "" && !tinyIDRegexp.MatchString(shortItem.TinyID) {
+    if shortItem.ShortID != "" && !shortIDRegexp.MatchString(shortItem.ShortID) {
         return clientError(http.StatusBadRequest)
     }
 
     dataStore := getStorage(DDBTable)
-    if shortItem.TinyID == "" {
-        shortItem.TinyID = getValidTinyID(dataStore, shortItem.URI)
-        if shortItem.TinyID == "" {
-            return serverError(errors.New("getValidTinyID() returned empty"))
+    if shortItem.ShortID == "" {
+        shortItem.ShortID = getValidShortID(dataStore, shortItem.URI)
+        if shortItem.ShortID == "" {
+            return serverError(errors.New("getValidShortID() returned empty"))
         }
     }
 
@@ -93,7 +93,7 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
     return events.APIGatewayProxyResponse{
         StatusCode: 201,
-        Headers:    map[string]string{"Location": fmt.Sprintf("/shorten?TinyID=%s", shortItem.TinyID)},
+        Headers:    map[string]string{"Location": fmt.Sprintf("/shorten?shortID=%s", shortItem.ShortID)},
     }, nil
 }
 

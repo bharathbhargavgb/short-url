@@ -9,7 +9,7 @@ import(
     "io"
 )
 
-func getValidTinyID(dataStore *DBStore, URI string) string {
+func getValidShortID(dataStore *DBStore, URI string) string {
     hasher := sha1.New()
     io.WriteString(hasher, URI)
     io.WriteString(hasher, getRandomNumber())

@@ -12,7 +12,7 @@ type fakeDynamoDBClient struct {
 }
 
 type shortItemKey struct {
-    TinyID string
+    ShortID string
 }
 
 func createFakeStorage() *DBStore {
@@ -26,10 +26,10 @@ func (m *fakeDynamoDBClient) GetItem(input *dynamodb.GetItemInput) (*dynamodb.Ge
     shortItem := new(shortItemKey)
     dynamodbattribute.UnmarshalMap(input.Key, shortItem)
 
-    if shortItem.TinyID == "goog" {
+    if shortItem.ShortID == "goog" {
         return &dynamodb.GetItemOutput {
             Item: map[string]*dynamodb.AttributeValue {
-                "TinyID": {
+                "ShortID": {
                     S: aws.String("goog"),
                 },
                 "URI": {
@@ -49,7 +49,7 @@ func (m *fakeDynamoDBClient) PutItem(input *dynamodb.PutItemInput) (*dynamodb.Pu
     if err != nil {
         return nil, errors.New("Unable to unmarshalMap from struct")
     }
-    if shortItemInput.TinyID == "goog" && shortItemInput.URI == "https://www.google.com" {
+    if shortItemInput.ShortID == "goog" && shortItemInput.URI == "https://www.google.com" {
         return nil, nil
     }
     return nil, errors.New("Malformed input")
