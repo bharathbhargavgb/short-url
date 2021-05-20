@@ -5,17 +5,14 @@ import(
     "time"
     "strconv"
     "crypto/sha1"
-    "encoding/base64"
     "io"
+
+    "github.com/eknkc/basex"
 )
 
-func getValidShortID(dataStore *DBStore, URI string) string {
-    hasher := sha1.New()
-    io.WriteString(hasher, URI)
-    io.WriteString(hasher, getRandomNumber())
 
-    // TODO: Use base62 instead of base64 
-    hashValue := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+func getValidShortID(dataStore *DBStore, URI string) string {
+    hashValue := generateShortID(URI)
 
     for keyLen := 6; keyLen <= 8; keyLen++ {
         for i := 0; i < 3; i++ {
@@ -27,6 +24,20 @@ func getValidShortID(dataStore *DBStore, URI string) string {
         }
     }
     return ""
+}
+
+func generateShortID(URI string) string {
+    hasher := sha1.New()
+    io.WriteString(hasher, URI)
+    io.WriteString(hasher, getRandomNumber())
+    return base58Encode(hasher.Sum(nil))
+}
+
+func base58Encode(input []byte) string {
+    // base58 excludes visually ambiguous characters - O 0 I l
+    base58_charSet := "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    encoder, _ := basex.NewEncoding(base58_charSet)
+    return encoder.Encode(input)
 }
 
 func getRandomNumber() string {
