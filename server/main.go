@@ -13,7 +13,7 @@ import (
     "github.com/aws/aws-lambda-go/lambda"
 )
 
-var DDBTable = "URIStore"
+var DDBTable = os.Getenv("URI_STORE")
 var shortIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
