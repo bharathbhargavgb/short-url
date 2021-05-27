@@ -19,7 +19,7 @@ resource "aws_iam_role" "shortener-lambda-role" {
 }
 
 resource "aws_lambda_function" "shortener-lambda" {
-  filename      = "${local.lambda-payload-path}"
+  filename      = local.lambda-payload-path
   function_name = "url-shortener"
   role          = aws_iam_role.shortener-lambda-role.arn
   handler       = "main"

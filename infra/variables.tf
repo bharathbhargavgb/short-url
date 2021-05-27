@@ -1,5 +1,5 @@
 variable "lambda-zip-name" {
-  default = "url-shortener.zip"
+  default = "lambda-payload.zip"
 }
 
 variable "lambda-payload-relative-path" {
