@@ -5,7 +5,6 @@ import (
     "log"
     "net/http"
     "os"
-    "fmt"
     "regexp"
     "errors"
 
@@ -18,8 +17,8 @@ var shortIDRegexp = regexp.MustCompile(`[a-zA-Z]{1,8}`)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
 type shortURI struct {
-    ShortID string
-    URI string
+    ShortID string `json:"shortID"`
+    URI string `json:"URI"`
 }
 
 func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -91,9 +90,17 @@ func shorten(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
         return serverError(err)
     }
 
+    httpResponseBody, err := json.Marshal(shortItem)
+    if err != nil {
+        return serverError(err)
+    }
+
     return events.APIGatewayProxyResponse{
         StatusCode: 201,
-        Headers:    map[string]string{"Location": fmt.Sprintf("/shorten?shortID=%s", shortItem.ShortID)},
+        Headers:    map[string]string{
+            "Access-Control-Allow-Origin": "*",
+        },
+        Body: string(httpResponseBody),
     }, nil
 }
 
@@ -102,6 +109,9 @@ func serverError(err error) (events.APIGatewayProxyResponse, error) {
 
     return events.APIGatewayProxyResponse{
         StatusCode: http.StatusInternalServerError,
+        Headers:    map[string]string{
+            "Access-Control-Allow-Origin": "*",
+        },
         Body:       http.StatusText(http.StatusInternalServerError),
     }, nil
 }
@@ -109,6 +119,9 @@ func serverError(err error) (events.APIGatewayProxyResponse, error) {
 func clientError(status int) (events.APIGatewayProxyResponse, error) {
     return events.APIGatewayProxyResponse{
         StatusCode: status,
+        Headers:    map[string]string{
+            "Access-Control-Allow-Origin": "*",
+        },
         Body:       http.StatusText(status),
     }, nil
 }

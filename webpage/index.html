@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta charset="utf-8">
     <title>URL shortener</title>
@@ -11,17 +11,22 @@
 
   <body>
     <div class="container">
-    <h1 id="top-heading" style="text-align: center">Very <em>fast</em> URL shortener</h1>
+      <h1 id="top-heading" style="text-align: center">Very <em>fast</em> URL shortener</h1>
 
-    <div class="center">
-  <form>
-      <input type="input" class="url-input" size="5" name="url" id='url' style="width:600px; height:40px; border-radius:25px; font-size:15px; padding-left:15px; padding-right:15px;" required/>
-
-      <input type="submit" class="submit-button" value="Shorten" />
-  </form>
-  </div>
-  </div>
-
+      <div class="center">
+        <input type="input" class="url-input" id="url" required />
+        <button class="submit" id="submit">
+          Shorten
+        </button>
+      </div>
+      <div>
+        <p>
+          <span id="shortID"></span>
+        </p>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="shortener.js"></script>
   </body>
 </html>
 
