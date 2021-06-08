@@ -1,4 +1,6 @@
 body {
+  display: grid;
+  place-items: center;
   max-width: 650px;
   margin: 40px auto;
   padding: 0 10px;
@@ -25,5 +27,27 @@ h3 {
   a:visited {
     color: #ccf;
   }
+}
+
+.container {
+}
+
+form {
+  display: grid;
+  grid-gap: 2rem;
+}
+
+.url-input {
+  outline:none;
+  height: 2.0rem;
+  padding: 0 calc(2.8rem * 0.5);
+  border-radius: calc(5.8rem * 0.3);
+}
+
+.submit-btn {
+  height: 2.0rem;
+  width: 8rem;
+  border-radius: calc(5.8rem * 0.3);
+  margin: auto;
 }
 

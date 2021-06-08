@@ -1,10 +1,9 @@
 var baseURL = "https://base.url/"
-
-$("#submit").click(function() {
-  console.log("onclick");
+$('#url-shortener-form').submit(function(event) {
+  event.preventDefault();
   var reqBody = {
     shortID: "",
-    URI: $("#url").val()
+    URI: $("#url-input").val()
   };
   $.ajax({
       url: 'https://angh4tqiu8.execute-api.us-east-1.amazonaws.com/staging/shorten',

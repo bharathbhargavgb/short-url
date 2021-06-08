@@ -13,11 +13,11 @@
     <div class="container">
       <h1 id="top-heading" style="text-align: center">Very <em>fast</em> URL shortener</h1>
 
-      <div class="center">
-        <input type="input" class="url-input" id="url" required />
-        <button class="submit" id="submit">
-          Shorten
-        </button>
+      <div class="url-form">
+        <form id="url-shortener-form">
+          <input type="input" class="url-input" id="url-input" placeholder="Enter URL" autocomplete="off" autofocus required />
+          <input type="submit" class="submit-btn" id="submit-btn" value="Shorten" />
+        </form>
       </div>
       <div>
         <p>
