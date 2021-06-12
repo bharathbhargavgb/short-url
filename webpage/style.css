@@ -26,18 +26,56 @@ h1 {
     color: #ccf;
   }
 
+  .custom-id {
+    color: #ffffff;
+  }
+
   .loader,
   .loader:before,
   .loader:after {
-    color: #ffffff;
+    background: #ffffff;
+    -webkit-animation: load1 1s infinite ease-in-out;
+    animation: load1 1s infinite ease-in-out;
+    width: 1em;
+    height: 4em;
   }
-
   .loader {
+    display: none;
     color: #ffffff;
+    text-indent: -9999em;
+    margin: 88px auto;
+    position: relative;
+    font-size: 7px;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
   }
+}
 
-  .custom-id {
-    color: #ffffff;
+@media (prefers-color-scheme: light) {
+  .loader,
+  .loader:before,
+  .loader:after {
+    background: #000000;
+    -webkit-animation: load1 1s infinite ease-in-out;
+    animation: load1 1s infinite ease-in-out;
+    width: 1em;
+    height: 4em;
+  }
+  .loader {
+    display: none;
+    color: #000000;
+    text-indent: -9999em;
+    margin: 88px auto;
+    position: relative;
+    font-size: 7px;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
   }
 }
 
@@ -106,28 +144,6 @@ form {
   text-align: center;
 }
 
-.loader,
-.loader:before,
-.loader:after {
-  background: #000000;
-  -webkit-animation: load1 1s infinite ease-in-out;
-  animation: load1 1s infinite ease-in-out;
-  width: 1em;
-  height: 4em;
-}
-.loader {
-  display: none;
-  color: #000000;
-  text-indent: -9999em;
-  margin: 88px auto;
-  position: relative;
-  font-size: 7px;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
 .loader:before,
 .loader:after {
   position: absolute;
@@ -142,6 +158,7 @@ form {
 .loader:after {
   left: 1.5em;
 }
+
 @-webkit-keyframes load1 {
   0%,
   80%,
@@ -166,4 +183,5 @@ form {
     height: 5em;
   }
 }
+
 
