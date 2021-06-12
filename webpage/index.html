@@ -15,7 +15,17 @@
 
       <div class="url-form">
         <form id="url-shortener-form">
-          <input type="input" class="url-input" id="url-input" placeholder="Enter URL" autocomplete="off" autofocus required />
+          <input type="url" class="url-input" id="url-input" placeholder="Enter URL" autocomplete="off" autofocus required />
+          <div class="customize-id">
+            <label class="custom-label" id="custom-label">
+              <input type="checkbox" class="custom-db" id="custom-cb">
+              <span>Customize short URL?</span></label>
+            </label>
+          </div>
+          <div class="custom-URL" id="custom-URL" >
+            <label class="base-url" id="base-url">https://base.url/</label>
+            <input type="text" class="custom-id" id="custom-id" autocomplete="off" />
+          </div>
           <input type="submit" class="submit-btn" id="submit-btn" value="Shorten" />
         </form>
       </div>

@@ -6,7 +6,7 @@ $('#url-shortener-form').submit(function(event) {
   toggleProgress();
 
   var reqBody = {
-    shortID: "",
+    shortID: $("#custom-id").val(),
     URI: $("#url-input").val()
   };
 
@@ -23,7 +23,7 @@ $('#url-shortener-form').submit(function(event) {
       toggleProgress();
       $("#shortID").html("<a href=\"" + shortURL + "\">" + shortURL + "</a>");
     },
-    failure: function(data) {
+    error: function(data) {
       toggleProgress();
       $("#shortID").html("Unable to shorten URL");
       console.log("failure " + data);
@@ -34,3 +34,9 @@ $('#url-shortener-form').submit(function(event) {
 function toggleProgress() {
   $(".loader").toggle();
 }
+
+
+$('#custom-cb').change(function() {
+  $(".customize-id").toggle();
+  $(".custom-URL").toggle();
+});
