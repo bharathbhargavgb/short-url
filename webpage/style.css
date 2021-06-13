@@ -93,6 +93,11 @@ form {
   height: 2.0rem;
   padding: 0 calc(2.8rem * 0.5);
   border-radius: calc(5.8rem * 0.3);
+  border: 1px solid;
+}
+
+.url-input:hover {
+  box-shadow: 1px 1px 8px #ccc;
 }
 
 .custom-id {
@@ -137,11 +142,16 @@ form {
   height: 2.0rem;
   width: 8rem;
   border-radius: calc(5.8rem * 0.3);
+  border: 1px solid;
   margin: auto;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
-#short-url-output {
-  text-align: center;
+.submit-btn:hover {
+  background: #000000;
+  color: #ffffff;
+  transition-duration: 0.5s;
 }
 
 .loader:before,
@@ -184,4 +194,23 @@ form {
   }
 }
 
+#output {
+  text-align: center;
+}
 
+#output-success {
+  display: none;
+  border: 1px dashed;
+  padding: 10px;
+}
+
+.copy-btn {
+  padding: 4px;
+  border: none;
+  margin: -35px -8px;
+  float: right;
+}
+
+.copy-btn:active {
+  background: #bbb;
+}
